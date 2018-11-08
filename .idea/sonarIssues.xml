@@ -48,7 +48,42 @@
             <set />
           </value>
         </entry>
+        <entry key="$PROJECT_DIR$/../futmundi-app/app/src/main/java/br/com/futmundi/app/app/AppInject.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../futmundi-app/app/src/main/java/br/com/futmundi/app/data/repository/repository/HunchesRepository.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
         <entry key="$PROJECT_DIR$/../futmundi-app/app/src/main/java/br/com/futmundi/app/data/repository/repository/UserRepository.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../futmundi-app/app/src/main/java/br/com/futmundi/app/data/storage/cache/core/CoroutinesCache.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../futmundi-app/app/src/main/java/br/com/futmundi/app/data/storage/cache/core/Deserializer.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../futmundi-app/app/src/main/java/br/com/futmundi/app/data/storage/cache/dao/LocalDatabase.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../futmundi-app/app/src/main/java/br/com/futmundi/app/ui/terms/TermsViewModel.kt">
+          <value>
+            <set />
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/../futmundi-app/dependencies.gradle">
           <value>
             <set />
           </value>
