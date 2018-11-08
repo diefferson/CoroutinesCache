@@ -4,7 +4,7 @@ apply plugin: "kotlin-kapt"
 apply plugin: 'maven'
 
 group = 'com.github.diefferson'
-version='0.0.4'
+version='0.0.5'
 
 android {
     compileSdkVersion 28
@@ -13,7 +13,7 @@ android {
         minSdkVersion 17
         targetSdkVersion 28
         versionCode 1
-        versionName "0.0.4"
+        versionName "0.0.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
