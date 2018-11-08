@@ -31,7 +31,7 @@ class CoroutinesCache(private var context: Context): CoroutineScope{
         }
     }
 
-    inline fun <reified T:Any> getFromSource(source:Deferred<T>, key: String):Deferred<T>{
+    suspend inline fun <reified T:Any> getFromSource(source:Deferred<T>, key: String):Deferred<T>{
         return async {
             val result = source.await()
             getDataBase().insert(Cache(key, Gson().toJson(result)))
