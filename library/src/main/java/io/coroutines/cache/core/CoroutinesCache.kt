@@ -46,7 +46,7 @@ open class CoroutinesCache(private var context: Context): CoroutineScope{
             try {
                 val listType = object : TypeToken<T>() {}.type
                 Gson().fromJson(resultDb, listType) as T
-            }catch (e:Exception){
+            }catch (e:StackOverflowError){
                 Gson().fromJson<T>(resultDb, T::class.java) as T
             }
 
