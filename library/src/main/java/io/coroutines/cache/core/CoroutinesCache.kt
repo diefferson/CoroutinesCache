@@ -9,7 +9,7 @@ import io.coroutines.cache.dao.LocalDatabase
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
-class CoroutinesCache(private var context: Context): CoroutineScope{
+open class CoroutinesCache(private var context: Context): CoroutineScope{
 
     private val executionJob: Job  by lazy { Job() }
 
