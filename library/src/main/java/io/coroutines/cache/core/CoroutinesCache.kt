@@ -19,23 +19,23 @@ class CoroutinesCache(private var context: Context): CoroutineScope{
 
     fun getDataBase() =  Room.databaseBuilder(context, LocalDatabase::class.java, context.packageName+CACHE_PREFIX).build().cacheDao()
 
-    suspend inline fun <reified T:Any> asyncCache(noinline source: suspend ()->Deferred<T>, key: String, forceSource:Boolean): Deferred<T> {
+    inline fun <reified T:Any> asyncCache(noinline source: suspend ()->T, key: String, forceSource:Boolean): Deferred<T> {
         return if (forceSource) {
-            getFromSource(source(), key)
+            getFromSource(source, key)
         } else {
             getFromCache<T>(key)?.let {
                 return async { it }
             }?: run {
-                return getFromSource(source(), key)
+                return getFromSource(source, key)
             }
         }
     }
 
-    fun <T> getFromSource(source:Deferred<T>, key: String):Deferred<T>{
+    fun <T> getFromSource(source: suspend ()->T, key: String):Deferred<T>{
         return async {
-            val result = source.await()
-            getDataBase().insert(Cache(key, Gson().toJson(result)))
-            result
+            val response = source()
+            getDataBase().insert(Cache(key, Gson().toJson(response)))
+            response
         }
     }
 
