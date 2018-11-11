@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken
 import io.coroutines.cache.dao.Cache
 import io.coroutines.cache.dao.LocalDatabase
 import kotlinx.coroutines.*
+import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 
 open class CoroutinesCache(private var context: Context): CoroutineScope{
@@ -42,8 +43,13 @@ open class CoroutinesCache(private var context: Context): CoroutineScope{
     inline fun <reified T:Any> getFromCache(key: String): T? {
         val resultDb = getDataBase().get(key)?.data
         return if (resultDb != null) {
-            val listType = object : TypeToken<T>() {}.type
-            Gson().fromJson(resultDb, listType) as T
+            try {
+                val listType = object : TypeToken<T>() {}.type
+                Gson().fromJson(resultDb, listType) as T
+            }catch (e:Exception){
+                Gson().fromJson<T>(resultDb, T::class.java) as T
+            }
+
         } else {
             return null
         }
