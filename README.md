@@ -1,3 +1,4 @@
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-CoroutinesCache-green.svg?style=true)](https://android-arsenal.com/details/1/7297)
 
 # CoroutinesCache
 
