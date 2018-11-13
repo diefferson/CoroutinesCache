@@ -1,27 +1,40 @@
 package io.coroutines.cache.dao
 
-import android.arch.persistence.room.*
+import android.content.Context
+import io.coroutines.cache.core.CoroutinesCache
+import io.realm.Realm
+import io.realm.RealmConfiguration
+import io.realm.RealmObject
+import io.realm.annotations.PrimaryKey
 
-@Database(entities = [Cache::class], version = 1)
-abstract class LocalDatabase : RoomDatabase() {
-    abstract fun cacheDao(): CacheDao
+class RealmDatabase(var context: Context) {
+
+    fun initDatabase() {
+        Realm.init(context)
+
+        val realmConfiguration = RealmConfiguration.Builder()
+            .name(context.packageName+ CoroutinesCache.CACHE_PREFIX)
+            .schemaVersion(1)
+            .build()
+
+        Realm.setDefaultConfiguration(realmConfiguration)
+
+    }
+
+    fun getDatabase(): Realm {
+        return Realm.getDefaultInstance()
+    }
+
 }
 
-@Dao
-interface CacheDao {
+open class Cache constructor(): RealmObject(){
 
-    @get:Query("SELECT * FROM cache")
-    val all: List<Cache>
+    @PrimaryKey
+    var id:String = ""
+    var data:String = ""
 
-    @Query("SELECT * FROM cache WHERE id = :cacheId")
-    fun get(cacheId: String): Cache?
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(cache: Cache)
-
-    @Delete
-    fun delete(cache: Cache)
+    constructor(id:String, data:String) :this(){
+        this.id = id
+        this.data = data
+    }
 }
-
-@Entity
-class Cache (@PrimaryKey var id:String, var data:String)
