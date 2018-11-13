@@ -14,7 +14,7 @@ When supplying an **`deferred` (these is the actualy supported Couroutine type)*
 to execute request to it or instead fetch the data previously cached. This decision is made based on the functions parameters.
  
 ```kotlin
-  myCache.asyncCache(source = suspend{restApi.getUser()},key =  "terms", forceSource = false)
+  myCache.asyncCache(source = suspend{restApi.getUser()},key =  "userKey", forceSource = false)
 ```
 
 ## Setup
