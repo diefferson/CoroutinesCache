@@ -56,8 +56,4 @@ open class CoroutinesCache(private var context: Context): CoroutineScope{
             return null
         }
     }
-
-    companion object {
-
-    }
 }
