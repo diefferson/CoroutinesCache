@@ -22,6 +22,7 @@ open class CoroutinesCache(private var context: Context): CoroutineScope{
             initDatabase()
         }
     }
+
     inline fun <reified T:Any> asyncCache(noinline source: suspend ()->Deferred<T>, key: String, forceSource:Boolean): Deferred<T> {
         return if (forceSource) {
             getFromSource(source, key)
@@ -55,9 +56,5 @@ open class CoroutinesCache(private var context: Context): CoroutineScope{
         } else {
             return null
         }
-    }
-
-    companion object {
-        const val CACHE_PREFIX = "cache"
     }
 }

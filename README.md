@@ -14,7 +14,7 @@ When supplying an **`deferred` (these is the actualy supported Couroutine type)*
 to execute request to it or instead fetch the data previously cached. This decision is made based on the functions parameters.
  
 ```kotlin
-  myCache.asyncCache(source = suspend{restApi.getUser()},key =  "terms", forceSource = false)
+  myCache.asyncCache(source = suspend{restApi.getUser()},key =  "userKey", forceSource = false)
 ```
 
 ## Setup
@@ -32,7 +32,7 @@ allprojects {
 And add next dependencies in the build.gradle of the module:
 ```gradle
 dependencies {
-    implementation "com.github.diefferson:CoroutinesCache:0.0.9"
+    implementation "com.github.diefferson:CoroutinesCache:0.1.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.26.1-eap13"
 }
 ```
