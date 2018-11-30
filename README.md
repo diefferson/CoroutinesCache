@@ -2,7 +2,7 @@
 
 # CoroutinesCache
 
-The **goal** of this library is simple: **caching your data models like [Picasso](https://github.com/square/picasso) caches your images, with no effort at all.** 
+Kotlin Coroutines is simple and your Cache Handler must be too, thats why I created this library, a powerfull caching library for Kotlin Android 
 
 Every Android application is a client application, which means it does not make sense to create and maintain a database just for caching data.
 
@@ -10,8 +10,7 @@ Plus, the fact that you have some sort of legendary database for persisting your
 
 Inspired by [Retrofit](http://square.github.io/retrofit/) api and [RxCache](https://github.com/diefferson/RxCache), **CoroutinesCache is a reactive caching library for Android which turns your caching needs into simple functions.** 
 
-When supplying an **`deferred` (these is the actualy supported Couroutine type)** which contains the data provided by an expensive task -probably an http connection, CoroutinesCache determines if it is needed 
-to execute request to it or instead fetch the data previously cached. This decision is made based on the functions parameters.
+When supplying an **`deferred` (these is the actualy supported Couroutine type)** which contains the data provided by an expensive task -probably an http connection, CoroutinesCache determines if it is needed to execute request to it or instead fetch the data previously cached. This decision is made based on the CachePolicy.
  
 ```kotlin
   myCache.asyncCache(source = suspend{restApi.getUser()},key =  "userKey", forceSource = false)
@@ -32,7 +31,7 @@ allprojects {
 And add next dependencies in the build.gradle of the module:
 ```gradle
 dependencies {
-    implementation "com.github.diefferson:CoroutinesCache:0.1.0"
+    implementation "com.github.diefferson:CoroutinesCache:0.2.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.26.1-eap13"
 }
 ```
@@ -60,9 +59,11 @@ Finally, instantiate the CouroutinesCache .
 ```kotlin
   val myCache = CoroutinesCache(context)
   
-  val users:List<User> = myCache.asyncCache(suspend{restApi.getUsers()} , "usersKey", false).await()
-  
-  val user:User = myCache.asyncCache(suspend{restApi.getUser(id)} , "userKey"+id, false).await()
+  //CachePolicy.EvictProvider to defines to local cache ou data source 
+  val users:List<User> = myCache.asyncCache({restApi.getUsers()} , "usersKey", CachePolicy.EvictProvider(true)).await()
+    
+   //CachePolicy.LifeCache to defines a time to expire cache
+  val user:User = myCache.asyncCache({restApi.getUser(id)} , "userKey"+id, CachePolicy.LifeCache(15, TimeUnit.MINUTES)).await()
   
 ```
 
