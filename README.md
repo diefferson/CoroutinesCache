@@ -13,7 +13,7 @@ Inspired by [Retrofit](http://square.github.io/retrofit/) api and [RxCache](http
 When supplying an **`deferred` (these is the actualy supported Couroutine type)** which contains the data provided by an expensive task -probably an http connection, CoroutinesCache determines if it is needed to execute request to it or instead fetch the data previously cached. This decision is made based on the CachePolicy.
  
 ```kotlin
-  myCache.asyncCache(source = suspend{restApi.getUser()},key =  "userKey", forceSource = false)
+  myCache.asyncCache(source = suspend{restApi.getUser()},key =  "userKey", CachePolicy.LifeCache(15, TimeUnit.MINUTES))
 ```
 
 ## Setup
