@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken
 import io.coroutines.cache.dao.Cache
 import io.coroutines.cache.dao.RealmDatabase
 import kotlinx.coroutines.*
+import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 open class CoroutinesCache(private var context: Context): CoroutineScope{
@@ -38,7 +39,7 @@ open class CoroutinesCache(private var context: Context): CoroutineScope{
             val result = source().await()
             database.getDatabase().apply {
                 beginTransaction()
-                copyToRealmOrUpdate(Cache(key,  Gson().toJson(result)))
+                copyToRealmOrUpdate(Cache(key,  Gson().toJson(result), Calendar.getInstance().time))
                 commitTransaction()
                 close()
             }
