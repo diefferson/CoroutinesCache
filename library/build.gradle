@@ -6,7 +6,7 @@ apply plugin: 'realm-android'
 
 
 group = 'com.github.diefferson'
-version='0.2.0'
+version='0.2.1'
 
 android {
     compileSdkVersion 28
