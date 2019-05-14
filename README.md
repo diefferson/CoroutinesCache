@@ -31,8 +31,8 @@ allprojects {
 And add next dependencies in the build.gradle of the module:
 ```gradle
 dependencies {
-    implementation "com.github.diefferson:CoroutinesCache:0.2.0"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.26.1-eap13"
+    implementation "com.github.diefferson:CoroutinesCache:0.2.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1"
 }
 ```
 ## Usage
@@ -57,13 +57,16 @@ CoroutinesCache exposes `asyncCache()` method to help use cache in a row.
 Finally, instantiate the CouroutinesCache .
 
 ```kotlin
-  val myCache = CoroutinesCache(context)
+  val myCache = CoroutinesCache(context,lifecycleOwner = this)
   
   //CachePolicy.EvictProvider to defines to local cache ou data source 
   val users:List<User> = myCache.asyncCache({restApi.getUsers()} , "usersKey", CachePolicy.EvictProvider(true)).await()
     
-   //CachePolicy.LifeCache to defines a time to expire cache
+   //CachePolicy.TimeCache to defines a time to expire cache
   val user:User = myCache.asyncCache({restApi.getUser(id)} , "userKey"+id, CachePolicy.LifeCache(15, TimeUnit.MINUTES)).await()
+  
+     //CachePolicy.LifecycleCache - Pass a LifecycleOwner in constructor, cache is deleted when lifecycle is destroyed
+  val user:User = myCache.asyncCache({restApi.getUser(id)} , "userKey"+id, CachePolicy.LifecycleCache).await()
   
 ```
 
