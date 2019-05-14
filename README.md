@@ -57,7 +57,7 @@ CoroutinesCache exposes `asyncCache()` method to help use cache in a row.
 Finally, instantiate the CouroutinesCache .
 
 ```kotlin
-  val myCache = CoroutinesCache(context)
+  val myCache = CoroutinesCache(context,lifecycleOwner = this)
   
   //CachePolicy.EvictProvider to defines to local cache ou data source 
   val users:List<User> = myCache.asyncCache({restApi.getUsers()} , "usersKey", CachePolicy.EvictProvider(true)).await()
