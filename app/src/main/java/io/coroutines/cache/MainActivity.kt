@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     }
 
     private val coroutinesCache :CoroutinesCache by lazy {
-        CoroutinesCache(this)
+        CoroutinesCache(this, lifecycleOwner = this)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

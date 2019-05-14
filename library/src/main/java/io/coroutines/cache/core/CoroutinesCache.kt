@@ -13,7 +13,7 @@ import java.util.*
 import kotlin.collections.HashMap
 import kotlin.coroutines.CoroutineContext
 
-open class CoroutinesCache(private var context: Context, val test: Boolean = false, val lifecycleOwner: LifecycleOwner? = null):CoroutineScope{
+open class CoroutinesCache(private var context: Context, @PublishedApi internal val test: Boolean = false,  @PublishedApi internal val lifecycleOwner: LifecycleOwner? = null):CoroutineScope{
 
     private val executionJob: Job  by lazy { Job() }
 
