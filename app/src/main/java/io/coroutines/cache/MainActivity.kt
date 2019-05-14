@@ -1,13 +1,12 @@
 package io.coroutines.cache
 
+import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import io.coroutines.cache.core.CachePolicy
 import io.coroutines.cache.core.CoroutinesCache
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.android.Main
-import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
@@ -25,13 +24,18 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         launch {
             delay(3000)
-            val myAsyncTet = coroutinesCache.asyncCache({ async { "My Async text!" } }, "Key", CachePolicy.LifeCache(10, TimeUnit.SECONDS)).await()
+            val myAsyncTet = coroutinesCache.asyncCache({ async { "My Async text!" } }, "Key",CachePolicy.LifecycleCache).await()
 
             withContext(Dispatchers.Main){
                 text.text = myAsyncTet
             }
+        }
+
+        text.setOnClickListener {
+            startActivity(Intent(this, Main2Activity::class.java))
         }
     }
 }

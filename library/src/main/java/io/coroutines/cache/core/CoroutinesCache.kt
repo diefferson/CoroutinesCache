@@ -1,15 +1,19 @@
 package io.coroutines.cache.core
 
 import android.content.Context
+import android.util.Log
+import androidx.lifecycle.*
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.coroutines.cache.dao.Cache
 import io.coroutines.cache.dao.RealmDatabase
 import kotlinx.coroutines.*
+import java.lang.IllegalStateException
 import java.util.*
+import kotlin.collections.HashMap
 import kotlin.coroutines.CoroutineContext
 
-open class CoroutinesCache(private var context: Context, val test: Boolean = false):CoroutineScope{
+open class CoroutinesCache(private var context: Context, val test: Boolean = false, val lifecycleOwner: LifecycleOwner? = null):CoroutineScope{
 
     private val executionJob: Job  by lazy { Job() }
 
@@ -23,19 +27,37 @@ open class CoroutinesCache(private var context: Context, val test: Boolean = fal
         }
     }
 
+    init {
+        lifecycleOwner?.lifecycle?.addObserver(object:LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            fun destroy() {
+                database.deleteLifecycle()
+            }
+        })
+    }
+
+    fun clear() {
+        database.clear()
+    }
+
+    fun deleteItem(key:String){
+        database.deleteItem(key)
+    }
+
+
     inline fun <reified T:Any> asyncCache(noinline source: suspend ()->Deferred<T>, key: String, cachePolicy: CachePolicy): Deferred<T> {
         return if(test){
             async{source().await()}
         }else{
             when(cachePolicy){
-
-                is CachePolicy.LifeCache-> cacheLifeResolver( source, key, cachePolicy)
+                is CachePolicy.TimeCache-> cacheTimeResolver( source, key, cachePolicy)
                 is CachePolicy.EvictProvider -> cacheProviderResolver(source, key, cachePolicy)
+                is CachePolicy.LifecycleCache -> cacheLifecycleResolver(source, key)
             }
         }
     }
 
-    @PublishedApi internal inline fun <reified T : Any> cacheLifeResolver(noinline source: suspend () -> Deferred<T>, key: String, cachePolicy: CachePolicy.LifeCache): Deferred<T> {
+    @PublishedApi internal inline fun <reified T : Any> cacheTimeResolver(noinline source: suspend () -> Deferred<T>, key: String, cachePolicy: CachePolicy.TimeCache): Deferred<T> {
         getFromCacheValidateTime<T>(key, cachePolicy)?.let {
             return async { it }
         } ?: run {
@@ -55,12 +77,24 @@ open class CoroutinesCache(private var context: Context, val test: Boolean = fal
         }
     }
 
-    @PublishedApi internal fun <T> getFromSource(source: suspend ()->Deferred<T>, key: String):Deferred<T>{
+    @PublishedApi internal inline fun <reified T : Any> cacheLifecycleResolver(noinline source: suspend () -> Deferred<T>, key: String): Deferred<T> {
+        if(lifecycleOwner == null){
+            throw IllegalStateException("Necessary pass a lifecycleowner to Coroutines Cache Constructor")
+        }
+
+        return getFromCache<T>(key)?.let {
+            async { it }
+        }?:run{
+            getFromSource(source, key, true)
+        }
+    }
+
+    @PublishedApi internal fun <T> getFromSource(source: suspend ()->Deferred<T>, key: String, isLifecycle: Boolean = false):Deferred<T>{
         return async {
             val result = source().await()
             database.getDatabase().apply {
                 beginTransaction()
-                copyToRealmOrUpdate(Cache(key,  Gson().toJson(result), Calendar.getInstance().time))
+                copyToRealmOrUpdate(Cache(key,  Gson().toJson(result), Calendar.getInstance().time, isLifecycle))
                 commitTransaction()
                 close()
             }
@@ -78,10 +112,10 @@ open class CoroutinesCache(private var context: Context, val test: Boolean = fal
         }
     }
 
-    @PublishedApi internal inline fun <reified T:Any> getFromCacheValidateTime(key: String, lifeCache: CachePolicy.LifeCache): T? {
+    @PublishedApi internal inline fun <reified T:Any> getFromCacheValidateTime(key: String, timeCache: CachePolicy.TimeCache): T? {
         val resultDb = database.getDatabase().where(Cache::class.java).equalTo("id", key).findFirst()
         return if (resultDb != null) {
-            if(resultDb.date.isValidCache(lifeCache.duration, lifeCache.timeUnit)){
+            if(resultDb.date.isValidCache(timeCache.duration, timeCache.timeUnit)){
                 val listType = object : TypeToken<T>() {}.type
                 Gson().fromJson(resultDb.data, listType) as T
             }else{
