@@ -1,12 +1,10 @@
 package io.coroutines.cache.dao
 
 import android.content.Context
-import com.google.gson.Gson
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
-import io.realm.kotlin.delete
 import java.util.*
 
 class RealmDatabase(var context: Context) {
@@ -28,22 +26,31 @@ class RealmDatabase(var context: Context) {
     }
 
     fun deleteItem(key:String){
-        getDatabase().executeTransaction {
-            val result = it.where(Cache::class.java).equalTo("id", key).findAll()
+        getDatabase().apply {
+            beginTransaction()
+            val result = where(Cache::class.java).equalTo("id", key).findAll()
             result.deleteAllFromRealm()
+            commitTransaction()
+            close()
         }
     }
 
     fun deleteLifecycle(){
-        getDatabase().executeTransaction {
-            val result = it.where(Cache::class.java).equalTo("lifecycle", true).findAll()
+        getDatabase().apply {
+            beginTransaction()
+            val result = where(Cache::class.java).equalTo("lifecycle", true).findAll()
             result.deleteAllFromRealm()
+            commitTransaction()
+            close()
         }
     }
 
     fun clear(){
-        getDatabase().executeTransaction {
-            it.deleteAll()
+        getDatabase().apply {
+            beginTransaction()
+            deleteAll()
+            commitTransaction()
+            close()
         }
     }
 
