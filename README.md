@@ -43,10 +43,10 @@ Using [Kotlin Coroutine Adapter](https://github.com/JakeWharton/retrofit2-kotlin
 interface RestApi {
 
     @GET("user/{id}")
-    fun getUser(@Path("id")idUser:String): Deferred<User>
+    suspend fun getUser(@Path("id")idUser:String): User
 
     @GET("user")
-    fun getUsers(): Deferred<List<User>>
+    suspend fun getUsers(): List<User>
 }
 
 ```
@@ -60,13 +60,13 @@ Finally, instantiate the CouroutinesCache .
   val myCache = CoroutinesCache(context,lifecycleOwner = this)
   
   //CachePolicy.EvictProvider to defines to local cache ou data source 
-  val users:List<User> = myCache.asyncCache({restApi.getUsers()} , "usersKey", CachePolicy.EvictProvider(true)).await()
+  val users:List<User> = myCache.asyncCache({restApi.getUsers()} , "usersKey", CachePolicy.EvictProvider(true))
     
    //CachePolicy.TimeCache to defines a time to expire cache
-  val user:User = myCache.asyncCache({restApi.getUser(id)} , "userKey"+id, CachePolicy.LifeCache(15, TimeUnit.MINUTES)).await()
+  val user:User = myCache.asyncCache({restApi.getUser(id)} , "userKey"+id, CachePolicy.LifeCache(15, TimeUnit.MINUTES))
   
      //CachePolicy.LifecycleCache - Pass a LifecycleOwner in constructor, cache is deleted when lifecycle is destroyed
-  val user:User = myCache.asyncCache({restApi.getUser(id)} , "userKey"+id, CachePolicy.LifecycleCache).await()
+  val user:User = myCache.asyncCache({restApi.getUser(id)} , "userKey"+id, CachePolicy.LifecycleCache)
   
 ```
 
