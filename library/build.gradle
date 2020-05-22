@@ -34,5 +34,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
     kapt "androidx.lifecycle:lifecycle-compiler:$lifecycle_version"
+    implementation "com.squareup.retrofit2:retrofit:2.9.0"
+
 
 }
