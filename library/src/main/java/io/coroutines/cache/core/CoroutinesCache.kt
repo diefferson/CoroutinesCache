@@ -12,9 +12,9 @@ import kotlin.coroutines.CoroutineContext
 
 open class CoroutinesCache(
     private var context: Context,
-    @PublishedApi internal val test: Boolean = false,
+    @PublishedApi internal val byPassCache: Boolean = false,
     @PublishedApi internal val lifecycleOwner: LifecycleOwner? = null,
-    @PublishedApi internal val jsonMapper: JsonMapper = GsonMapper()
+    @PublishedApi internal val jsonMapper: JsonMapper
 ) : CoroutineScope {
 
     private val executionJob: Job by lazy { Job() }
@@ -47,14 +47,13 @@ open class CoroutinesCache(
         database.deleteItem(key)
     }
 
-
-    inline fun <reified T : Any> asyncCache(
-        noinline source: suspend () -> Deferred<T>,
+    suspend inline fun <reified T : Any> asyncCache(
+        noinline source: suspend () -> T,
         key: String,
         cachePolicy: CachePolicy
-    ): Deferred<T> {
-        return if (test) {
-            async { source().await() }
+    ): T {
+        return if (byPassCache) {
+            return source()
         } else {
             when (cachePolicy) {
                 is CachePolicy.TimeCache -> cacheTimeResolver(source, key, cachePolicy)
@@ -65,29 +64,29 @@ open class CoroutinesCache(
     }
 
     @PublishedApi
-    internal inline fun <reified T : Any> cacheTimeResolver(
-        noinline source: suspend () -> Deferred<T>,
+    internal suspend inline fun <reified T : Any> cacheTimeResolver(
+        noinline source: suspend () -> T,
         key: String,
         cachePolicy: CachePolicy.TimeCache
-    ): Deferred<T> {
+    ): T {
         getFromCacheValidateTime<T>(key, cachePolicy)?.let {
-            return async { it }
+            return it
         } ?: run {
             return getFromSource(source, key)
         }
     }
 
     @PublishedApi
-    internal inline fun <reified T : Any> cacheProviderResolver(
-        noinline source: suspend () -> Deferred<T>,
+    internal suspend inline fun <reified T : Any> cacheProviderResolver(
+        noinline source: suspend () -> T,
         key: String,
         cachePolicy: CachePolicy.EvictProvider
-    ): Deferred<T> {
+    ): T {
         return if (cachePolicy.fromSource) {
             getFromSource(source, key)
         } else {
             getFromCache<T>(key)?.let {
-                return async { it }
+                return it
             } ?: run {
                 return getFromSource(source, key)
             }
@@ -95,44 +94,43 @@ open class CoroutinesCache(
     }
 
     @PublishedApi
-    internal inline fun <reified T : Any> cacheLifecycleResolver(
-        noinline source: suspend () -> Deferred<T>,
+    internal suspend inline fun <reified T : Any> cacheLifecycleResolver(
+        noinline source: suspend () -> T,
         key: String
-    ): Deferred<T> {
+    ): T {
         if (lifecycleOwner == null) {
             throw IllegalStateException("Necessary pass a lifecycleowner to Coroutines Cache Constructor")
         }
 
-        return getFromCache<T>(key)?.let {
-            async { it }
-        } ?: run {
+        return getFromCache<T>(key) ?: run {
             getFromSource(source, key, true)
         }
     }
 
     @PublishedApi
-    internal fun <T> getFromSource(
-        source: suspend () -> Deferred<T>,
+    internal suspend fun <T> getFromSource(
+        source: suspend () -> T,
         key: String,
         isLifecycle: Boolean = false
-    ): Deferred<T> {
-        return async {
-            val result = source().await()
+    ): T {
+        val result = source()
+        if (jsonMapper.assertValidJson(result)) {
             database.getDatabase().apply {
                 beginTransaction()
                 copyToRealmOrUpdate(
                     Cache(
                         key,
-                        jsonMapper.toJson(result),
+                        jsonMapper.toJson(result!!),
                         Calendar.getInstance().time,
                         isLifecycle
                     )
                 )
                 commitTransaction()
                 close()
+
             }
-            result
         }
+        return result
     }
 
     @PublishedApi
@@ -141,7 +139,7 @@ open class CoroutinesCache(
             database.getDatabase().where(Cache::class.java).equalTo("id", key).findFirst()?.data
         return if (resultDb != null) {
             val listType = object : TypeToken<T>() {}.type
-            jsonMapper.fromJson(resultDb, listType)
+            jsonMapper.fromJson(resultDb, listType) as T?
         } else {
             return null
         }
