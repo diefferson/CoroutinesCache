@@ -31,7 +31,7 @@ allprojects {
 And add next dependencies in the build.gradle of the module:
 ```gradle
 dependencies {
-    implementation "com.github.diefferson:CoroutinesCache:0.2.3"
+    implementation "com.github.diefferson:CoroutinesCache:0.3.0"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1"
 }
 ```
